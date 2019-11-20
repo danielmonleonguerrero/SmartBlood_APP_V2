@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'SmartBlood',
       theme: ThemeData(
         primarySwatch: Colors.red,
-        accentColor: Colors.amberAccent,
+        accentColor: Colors.deepOrangeAccent,
       ),
       home: MyHomePage(title: 'SmartBlood'),
     );
@@ -33,9 +33,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  DateTime _diaSeleccionado = DateTime.now();
-  List<Analisis> analisisClicados = List<Analisis>();
-  
+  DateTime _diaSeleccionado = DateTime.now(); //DateTime of the current day selected
+  List<Analisis> analisisDelDia = List<Analisis>(); //List of analisis that happened on a specific day
+
   List<Analisis> _userAnalisis = [
     Analisis(
       fecha: DateTime.now().subtract(Duration(days: 1)),
@@ -51,7 +51,8 @@ class _MyHomePageState extends State<MyHomePage> {
     ),
   ];
 
-  List<DateTime> get _diasCalendario {
+  //used to get the dates with data for the marks in the calendar
+  List<DateTime> get _diasMarcados {
     List<DateTime> list = List<DateTime>();
     _userAnalisis.forEach((a) {
       list.add(a.fecha);
@@ -59,7 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return (list);
   }
 
-  List<Analisis> _analisisDia(DateTime dia) {
+  //Used to get all the Analisis happened on a specific day
+  List<Analisis> _getAnalisisdelDia(DateTime dia) {
     return _userAnalisis.where((ua) {
       return (ua.fecha.year == dia.year &&
           ua.fecha.month == dia.month &&
@@ -67,9 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
+  //Updates analisisDia due to a change of the selected day
   void _diaClicado(DateTime dia) {
     setState(() {
-      analisisClicados = _analisisDia(dia); 
+      analisisDelDia = _getAnalisisdelDia(dia);
     });
     _diaSeleccionado = dia;
   }
@@ -90,6 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  //When there is a new Analisis, this method is the responsable of updating the data
   void _registrarAnalisis(
     String nivelglucosa, DateTime dia, String nota1, String nota2) {
     Analisis nuevoAnalisis = new Analisis(
@@ -100,7 +104,18 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     setState(() {
       _userAnalisis.add(nuevoAnalisis);
-      analisisClicados = _analisisDia(dia);
+      analisisDelDia = _getAnalisisdelDia(dia);
+    });
+  }
+
+  void _borrarAnalisis(Analisis analisisBorrado){
+    setState(() {
+      for(int i=0; i<_userAnalisis.length; i++){
+        if(analisisBorrado==_userAnalisis[i]){
+          _userAnalisis.removeAt(i);
+          analisisDelDia = _getAnalisisdelDia(_diaSeleccionado);
+        }
+      }
     });
   }
 
@@ -111,9 +126,9 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text("Smart Blood"),
       ),
       body: Column(children: <Widget>[
-        Calendar(_diasCalendario, _diaClicado),
-        for (int i = 0; i < analisisClicados.length; i++)
-          ResumenAnalisis(analisisClicados[i]),
+        Calendar(_diasMarcados, _diaClicado),
+        for (int i = 0; i < analisisDelDia.length; i++)
+          ResumenAnalisis(analisisDelDia[i], _borrarAnalisis),
       ]),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(

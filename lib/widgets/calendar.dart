@@ -18,6 +18,7 @@ class _CalendarState extends State<Calendar> {
   Map<DateTime, List> _events = Map<DateTime, List>();
 
   void createEvents(){
+    _events.clear();
     widget._diasCalendario.forEach((d){
       _events.putIfAbsent(d, ()=> [""]);
       print(_events);
@@ -53,12 +54,13 @@ class _CalendarState extends State<Calendar> {
           selectedColor: Theme.of(context).primaryColor,
           todayStyle: TextStyle(
             color: Colors.black,
+            fontWeight: FontWeight.bold,
           ),
           todayColor: null,
           
         ),
         daysOfWeekStyle: DaysOfWeekStyle(
-          weekendStyle: TextStyle(color: Colors.black,),
+          weekendStyle: TextStyle(color: Colors.black54,),
         ),
         startingDayOfWeek: StartingDayOfWeek.monday,
         availableCalendarFormats: const {
